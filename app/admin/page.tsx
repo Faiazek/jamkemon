@@ -23,6 +23,13 @@ import { timeAgo } from "../../lib/time";
 
 type Phase = "checking" | "not-admin" | "ready";
 
+// True when the reporter saw the situation meaningfully earlier than they
+// submitted it (an after-the-fact / offline report) — worth flagging to admins.
+function isAfterTheFact(r: Report): boolean {
+  if (!r.observed_at) return false;
+  return new Date(r.created_at).getTime() - new Date(r.observed_at).getTime() > 3 * 60_000;
+}
+
 export default function AdminPage() {
   const { t, locale } = useLanguage();
   const router = useRouter();
@@ -186,7 +193,14 @@ function ReportCard({
         )}
 
         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
-          <span>{timeAgo(report.created_at, locale)}</span>
+          <span>
+            {timeAgo(report.created_at, locale)}
+            {isAfterTheFact(report) && (
+              <span className="ml-1.5 rounded-full bg-amber-500/15 px-1.5 py-0.5 font-medium text-amber-600 dark:text-amber-400">
+                {t("seenAgoPrefix")} {timeAgo(report.observed_at!, locale)}
+              </span>
+            )}
+          </span>
           <a
             href={osmLink}
             target="_blank"

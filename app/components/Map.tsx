@@ -11,7 +11,7 @@ import { useReport } from "../report/ReportContext";
 import { useReports } from "../report/ReportsContext";
 import { useDirections } from "../directions/DirectionsContext";
 import { useTheme } from "../theme/ThemeProvider";
-import { CATEGORIES, type Category } from "../../lib/reports";
+import { CATEGORIES, reconcile, type Category } from "../../lib/reports";
 
 const MapInner = dynamic(() => import("./MapInner"), {
   ssr: false,
@@ -42,11 +42,13 @@ export default function Map() {
   const filtered = useMemo(() => {
     const now = Date.now();
     const windowMs = recency === "1h" ? 3_600_000 : recency === "3h" ? 10_800_000 : Infinity;
-    return reports.filter((r) => {
+    const matched = reports.filter((r) => {
       if (category !== "all" && r.category !== category) return false;
       if (now - new Date(r.created_at).getTime() > windowMs) return false;
       return true;
     });
+    // Collapse near-duplicate same-category reports so the freshest sighting wins.
+    return reconcile(matched);
   }, [reports, category, recency]);
 
   function handleLocate() {
@@ -63,33 +65,36 @@ export default function Map() {
 
   return (
     <div className="absolute inset-0">
-      {/* Filters — floating glass row below the top bar, hidden while reporting/directions */}
+      {/* Filters — floating glass row below the top bar, hidden while reporting/directions.
+          Live count is pinned on the left; the labeled chips scroll horizontally. */}
       {mode === "idle" && !dirActive && (
         <div
           className="pointer-events-none absolute inset-x-0 z-[800] flex justify-center px-3"
           style={{ top: "calc(env(safe-area-inset-top) + 3.75rem)" }}
         >
-          <div className="no-scrollbar pointer-events-auto flex max-w-full items-center gap-1.5 overflow-x-auto rounded-full bg-white/85 px-2 py-1.5 shadow-lg ring-1 ring-black/5 backdrop-blur-md dark:bg-neutral-900/85 dark:ring-white/10">
-            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="pointer-events-auto flex max-w-full items-center gap-1.5 rounded-full bg-white/90 py-1.5 pl-1.5 pr-2 shadow-lg ring-1 ring-black/5 backdrop-blur-md dark:bg-neutral-900/90 dark:ring-white/10">
+            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {reports.length}
               <span className="hidden sm:inline">{t("live")}</span>
             </span>
-            <Chip active={category === "all"} onClick={() => setCategory("all")}>
-              {t("filterAll")}
-            </Chip>
-            {CATEGORIES.map((c) => (
-              <Chip key={c.key} active={category === c.key} onClick={() => setCategory(c.key)}>
-                <span>{c.emoji}</span>
-                <span className="hidden sm:inline">{t(c.labelKey)}</span>
+            <div className="no-scrollbar flex min-w-0 items-center gap-1.5 overflow-x-auto">
+              <Chip active={category === "all"} onClick={() => setCategory("all")}>
+                {t("filterAll")}
               </Chip>
-            ))}
-            <span className="mx-0.5 h-5 w-px shrink-0 bg-slate-200 dark:bg-white/15" />
-            {(["live", "1h", "3h"] as Recency[]).map((r) => (
-              <Chip key={r} active={recency === r} onClick={() => setRecency(r)}>
-                {t(r === "live" ? "recentLive" : r === "1h" ? "recent1h" : "recent3h")}
-              </Chip>
-            ))}
+              {CATEGORIES.map((c) => (
+                <Chip key={c.key} active={category === c.key} onClick={() => setCategory(c.key)}>
+                  <span aria-hidden>{c.emoji}</span>
+                  <span>{t(c.labelKey)}</span>
+                </Chip>
+              ))}
+              <span className="mx-0.5 h-5 w-px shrink-0 bg-slate-200 dark:bg-white/15" />
+              {(["live", "1h", "3h"] as Recency[]).map((r) => (
+                <Chip key={r} active={recency === r} onClick={() => setRecency(r)}>
+                  {t(r === "live" ? "recentLive" : r === "1h" ? "recent1h" : "recent3h")}
+                </Chip>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -139,10 +144,10 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95 ${
+      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95 ${
         active
           ? "bg-rose-600 text-white shadow-sm"
-          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
+          : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/[0.15]"
       }`}
     >
       {children}

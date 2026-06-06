@@ -101,14 +101,18 @@ export default function PlaceInput({
                   setOpen(false);
                   onSelect(p);
                 }}
-                className="flex w-full items-start gap-2 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-white/5"
+                className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-white/5"
               >
-                <span className="mt-0.5 text-slate-400">📍</span>
-                <span className="min-w-0">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100 text-base dark:bg-white/10">
+                  {p.icon}
+                </span>
+                <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium text-slate-800 dark:text-slate-100">
                     {p.label}
                   </span>
-                  <span className="block truncate text-xs text-slate-400">{p.sub}</span>
+                  <span className="block truncate text-xs text-slate-400">
+                    {t(p.kindKey)} · {p.sub}
+                  </span>
                 </span>
               </button>
             ))

@@ -11,6 +11,7 @@ import { useReport } from "../report/ReportContext";
 import {
   CATEGORIES,
   SEVERITIES,
+  SEEN_OPTIONS,
   submitReport,
   type Category,
   type Severity,
@@ -25,6 +26,7 @@ export default function ReportFlow() {
 
   const [category, setCategory] = useState<Category | null>(null);
   const [severity, setSeverity] = useState<Severity>("medium");
+  const [seenMinutes, setSeenMinutes] = useState(0);
   const [description, setDescription] = useState("");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [notConnected, setNotConnected] = useState(false);
@@ -33,6 +35,7 @@ export default function ReportFlow() {
   function resetForm() {
     setCategory(null);
     setSeverity("medium");
+    setSeenMinutes(0);
     setDescription("");
     setSubmitState("idle");
     setNotConnected(false);
@@ -69,6 +72,7 @@ export default function ReportFlow() {
       category,
       severity,
       description,
+      observedAt: new Date(Date.now() - seenMinutes * 60_000).toISOString(),
     });
     if (result.ok) {
       setSubmitState("success");
@@ -195,6 +199,31 @@ export default function ReportFlow() {
                     }`}
                   >
                     {t(s.labelKey)}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* When did you see this? — supports after-the-fact / offline reporting */}
+            <h2 className="mt-4 text-sm font-semibold text-slate-800 dark:text-slate-200">
+              {t("seenLabel")}
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-400">{t("seenHint")}</p>
+            <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto">
+              {SEEN_OPTIONS.map((o) => {
+                const selected = seenMinutes === o.minutesAgo;
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => setSeenMinutes(o.minutesAgo)}
+                    className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-2 text-sm transition ${
+                      selected
+                        ? "border-rose-500 bg-rose-50 font-semibold text-rose-700 dark:bg-rose-500/15 dark:text-rose-300"
+                        : "border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    {t(o.labelKey)}
                   </button>
                 );
               })}

@@ -1,6 +1,7 @@
 // Everything about a "report": its categories, severities, and how we save one.
 
 import { supabase } from "./supabaseClient";
+import { haversineMeters } from "./geo";
 import type { MessageKey } from "../app/i18n/messages";
 
 export type Category =
@@ -37,6 +38,18 @@ export const SEVERITIES: { key: Severity; labelKey: MessageKey }[] = [
   { key: "high", labelKey: "severityHigh" },
 ];
 
+// "When did you see this?" — lets people report something they saw earlier,
+// e.g. they had no internet at the time and submit once back home. The chosen
+// offset shifts the report's observed time, which the database uses to expire
+// after-the-fact reports sooner (see supabase/observed_at.sql).
+export const SEEN_OPTIONS: { key: string; labelKey: MessageKey; minutesAgo: number }[] = [
+  { key: "now", labelKey: "seenNow", minutesAgo: 0 },
+  { key: "15m", labelKey: "seen15m", minutesAgo: 15 },
+  { key: "30m", labelKey: "seen30m", minutesAgo: 30 },
+  { key: "1h", labelKey: "seen1h", minutesAgo: 60 },
+  { key: "2h", labelKey: "seen2h", minutesAgo: 120 },
+];
+
 // A stable anonymous id for this device, used later for rate-limiting and to
 // let people see/manage their own reports. Stored in the browser only.
 export function getReporterToken(): string {
@@ -55,6 +68,9 @@ export type NewReport = {
   category: Category;
   severity: Severity;
   description: string;
+  // When the reporter actually saw it (ISO). May be earlier than now for
+  // after-the-fact reports. The database validates and clamps this.
+  observedAt: string;
 };
 
 export type SubmitResult =
@@ -69,14 +85,24 @@ export async function submitReport(report: NewReport): Promise<SubmitResult> {
     return { ok: false, reason: "not-configured" };
   }
 
-  const { error } = await supabase.from("reports").insert({
+  const base = {
     lat: report.lat,
     lng: report.lng,
     category: report.category,
     severity: report.severity,
     description: report.description.trim() || null,
     reporter_token: getReporterToken(),
-  });
+  };
+
+  let { error } = await supabase
+    .from("reports")
+    .insert({ ...base, observed_at: report.observedAt });
+
+  // If the observed_at migration hasn't been applied yet, fall back to a plain
+  // insert so reporting keeps working (the report just won't be back-dated).
+  if (error?.code === "42703") {
+    ({ error } = await supabase.from("reports").insert(base));
+  }
 
   if (error) {
     console.error("submitReport failed:", error);
@@ -91,6 +117,7 @@ export async function submitReport(report: NewReport): Promise<SubmitResult> {
 export type Report = {
   id: string;
   created_at: string;
+  observed_at: string | null;
   expires_at: string;
   lat: number;
   lng: number;
@@ -100,6 +127,17 @@ export type Report = {
   status: "pending" | "approved" | "rejected";
   reporter_token: string | null;
 };
+
+// Select all columns rather than naming observed_at explicitly: that keeps the
+// read working whether or not the observed_at migration has been applied yet
+// (a named-but-missing column would otherwise fail the entire query).
+const REPORT_COLUMNS = "*";
+
+// When the report was actually witnessed (falls back to submission time for
+// older rows that predate the observed_at column).
+export function observedTime(r: Report): number {
+  return new Date(r.observed_at ?? r.created_at).getTime();
+}
 
 // Is the currently signed-in user an approved admin?
 export async function isCurrentUserAdmin(): Promise<boolean> {
@@ -119,9 +157,7 @@ export async function fetchPendingReports(): Promise<Report[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from("reports")
-    .select(
-      "id, created_at, expires_at, lat, lng, category, severity, description, status, reporter_token"
-    )
+    .select(REPORT_COLUMNS)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
   if (error) {
@@ -138,9 +174,7 @@ export async function fetchApprovedReports(): Promise<Report[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from("reports")
-    .select(
-      "id, created_at, expires_at, lat, lng, category, severity, description, status, reporter_token"
-    )
+    .select(REPORT_COLUMNS)
     .eq("status", "approved")
     .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: false });
@@ -149,6 +183,31 @@ export async function fetchApprovedReports(): Promise<Report[]> {
     return [];
   }
   return (data as Report[]) ?? [];
+}
+
+// ---- Reconciliation ------------------------------------------------------
+
+// How close two same-category reports must be to count as "the same situation".
+const DEDUPE_RADIUS_M = 150;
+
+// Collapse near-duplicate reports so fresher information wins. When several
+// reports of the same category sit within DEDUPE_RADIUS_M of each other (e.g. a
+// jam someone reported live and the same jam someone else saw an hour earlier),
+// only the most recently *observed* one is kept. Combined with observed_at-based
+// expiry, this is how an after-the-fact report quietly drops out once newer
+// sightings exist or its freshness window passes.
+export function reconcile(reports: Report[]): Report[] {
+  const byFreshest = [...reports].sort((a, b) => observedTime(b) - observedTime(a));
+  const kept: Report[] = [];
+  for (const r of byFreshest) {
+    const superseded = kept.some(
+      (k) =>
+        k.category === r.category &&
+        haversineMeters(k.lat, k.lng, r.lat, r.lng) <= DEDUPE_RADIUS_M
+    );
+    if (!superseded) kept.push(r);
+  }
+  return kept;
 }
 
 // Approve or reject a report (admin only, enforced by RLS).
