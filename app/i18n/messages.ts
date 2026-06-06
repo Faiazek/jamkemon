@@ -1,0 +1,211 @@
+// All user-facing text lives here in both languages.
+// To change any wording, edit it here — both languages stay side by side.
+
+export type Locale = "bn" | "en";
+
+export const messages = {
+  bn: {
+    appName: "জ্যাম কেমন?",
+    tagline: "ঢাকার রাস্তার বাস্তব অবস্থা — মানুষের কাছ থেকে, লাইভ।",
+    reportButton: "রিপোর্ট করুন",
+    languageName: "English",
+    comingSoon: "শীঘ্রই আসছে",
+    mapLoading: "ম্যাপ লোড হচ্ছে…",
+    footerNote: "কমিউনিটি-চালিত ট্রাফিক ম্যাপ • ঢাকা",
+
+    // Report flow
+    pickLocationPrompt: "অবস্থান চিহ্নিত করতে ম্যাপে ট্যাপ করুন",
+    adjustPinPrompt: "ঠিক জায়গায় পিনটি টেনে আনুন",
+    useMyLocation: "আমার অবস্থান",
+    cancel: "বাতিল",
+    back: "পেছনে",
+    continue: "পরবর্তী",
+    chooseCategory: "কী ঘটছে?",
+    chooseSeverity: "কতটা খারাপ?",
+    descriptionLabel: "বিস্তারিত (ঐচ্ছিক)",
+    descriptionPlaceholder: "যেমন: ট্রাক নষ্ট হয়ে এক লেন বন্ধ",
+    submit: "রিপোর্ট জমা দিন",
+    submitting: "জমা হচ্ছে…",
+    successTitle: "ধন্যবাদ!",
+    successBody:
+      "আপনার রিপোর্ট পর্যালোচনার অপেক্ষায় আছে এবং অনুমোদনের পর ম্যাপে দেখা যাবে।",
+    done: "সম্পন্ন",
+
+    // Errors / validation
+    selectCategoryFirst: "আগে একটি ধরন বেছে নিন",
+    geolocationError: "আপনার অবস্থান পাওয়া যায়নি। ম্যাপে ট্যাপ করে দিন।",
+    submitError: "একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+    notConfigured: "ডাটাবেস এখনো সংযুক্ত হয়নি (সেটআপ বাকি)।",
+
+    // Categories
+    categoryJam: "যানজট",
+    categoryAccident: "দুর্ঘটনা",
+    categoryWaterlogging: "জলাবদ্ধতা",
+    categoryRoadblock: "রাস্তা বন্ধ",
+    categoryProtest: "মিছিল / প্রতিবাদ",
+    categoryConstruction: "নির্মাণকাজ",
+    categoryOther: "অন্যান্য",
+
+    // Severity
+    severityLow: "হালকা",
+    severityMedium: "মাঝারি",
+    severityHigh: "তীব্র",
+
+    // Admin
+    adminLoginTitle: "অ্যাডমিন লগইন",
+    emailLabel: "ইমেইল",
+    passwordLabel: "পাসওয়ার্ড",
+    signIn: "লগইন করুন",
+    signingIn: "লগইন হচ্ছে…",
+    signOut: "লগআউট",
+    loginError: "ইমেইল বা পাসওয়ার্ড ভুল।",
+    adminQueueTitle: "অপেক্ষমাণ রিপোর্ট",
+    noPending: "কোনো অপেক্ষমাণ রিপোর্ট নেই — সব দেখা হয়ে গেছে! ✅",
+    approve: "অনুমোদন",
+    reject: "বাতিল",
+    loadingQueue: "লোড হচ্ছে…",
+    notAdmin: "এই অ্যাকাউন্টটি অ্যাডমিন হিসেবে অনুমোদিত নয়।",
+    openInOsm: "ম্যাপে দেখুন",
+    backToMap: "ম্যাপে ফিরে যান",
+
+    // Public map filters
+    filterAll: "সব",
+    recentLive: "লাইভ",
+    recent1h: "১ ঘণ্টা",
+    recent3h: "৩ ঘণ্টা",
+    noLiveReports: "এই মুহূর্তে কোনো লাইভ রিপোর্ট নেই।",
+    live: "লাইভ",
+    reportsCount: "রিপোর্ট",
+
+    // Welcome card (first visit)
+    welcomeTitle: "জ্যাম কেমন-এ স্বাগতম",
+    welcomeBody:
+      "ঢাকার রাস্তার লাইভ অবস্থা দেখুন — মানুষের পাঠানো রিপোর্টে। আপনি যা দেখছেন, তা জানাতে নিচের 'রিপোর্ট' বোতামে চাপ দিন।",
+    welcomeCta: "শুরু করুন",
+    themeToggle: "থিম পরিবর্তন",
+    locateMe: "আমার অবস্থান দেখান",
+    searchPlaceholder: "এলাকা খুঁজুন (যেমন: মহাখালী)",
+    searchNoResults: "কিছু পাওয়া যায়নি",
+    searchSearching: "খোঁজা হচ্ছে…",
+
+    // Directions
+    directions: "দিকনির্দেশ",
+    fromLabel: "কোথা থেকে",
+    toLabel: "কোথায়",
+    yourLocation: "📍 আপনার অবস্থান",
+    fromPlaceholder: "শুরুর জায়গা",
+    toPlaceholder: "গন্তব্য লিখুন",
+    findRoute: "রাস্তা দেখুন",
+    routeFinding: "রাস্তা খোঁজা হচ্ছে…",
+    routeError: "রাস্তা পাওয়া যায়নি। অবস্থান যাচাই করুন।",
+    reportsOnRoute: "আপনার রুটে রিপোর্ট",
+    noReportsOnRoute: "এই রুটে কোনো রিপোর্ট নেই — রাস্তা পরিষ্কার!",
+    clearRoute: "মুছুন",
+    kmShort: "কিমি",
+    minShort: "মিনিট",
+    trafficEstimateNote: "লাইভ ট্রাফিক ছাড়া আনুমানিক সময়",
+  },
+  en: {
+    appName: "JamKemon",
+    tagline: "Dhaka's real road conditions — from people, live.",
+    reportButton: "Report",
+    languageName: "বাংলা",
+    comingSoon: "Coming soon",
+    mapLoading: "Loading map…",
+    footerNote: "Community-driven traffic map • Dhaka",
+
+    // Report flow
+    pickLocationPrompt: "Tap the map to mark the location",
+    adjustPinPrompt: "Drag the pin to the exact spot",
+    useMyLocation: "My location",
+    cancel: "Cancel",
+    back: "Back",
+    continue: "Continue",
+    chooseCategory: "What's happening?",
+    chooseSeverity: "How bad is it?",
+    descriptionLabel: "Details (optional)",
+    descriptionPlaceholder: "e.g. Truck broke down, one lane blocked",
+    submit: "Submit report",
+    submitting: "Submitting…",
+    successTitle: "Thank you!",
+    successBody:
+      "Your report is pending review and will appear on the map once approved.",
+    done: "Done",
+
+    // Errors / validation
+    selectCategoryFirst: "Please pick a category first",
+    geolocationError: "Couldn't get your location. Tap the map instead.",
+    submitError: "Something went wrong. Please try again.",
+    notConfigured: "Database isn't connected yet (setup pending).",
+
+    // Categories
+    categoryJam: "Traffic jam",
+    categoryAccident: "Accident",
+    categoryWaterlogging: "Waterlogging",
+    categoryRoadblock: "Road blocked",
+    categoryProtest: "Protest / Procession",
+    categoryConstruction: "Construction",
+    categoryOther: "Other",
+
+    // Severity
+    severityLow: "Light",
+    severityMedium: "Moderate",
+    severityHigh: "Severe",
+
+    // Admin
+    adminLoginTitle: "Admin sign in",
+    emailLabel: "Email",
+    passwordLabel: "Password",
+    signIn: "Sign in",
+    signingIn: "Signing in…",
+    signOut: "Sign out",
+    loginError: "Wrong email or password.",
+    adminQueueTitle: "Pending reports",
+    noPending: "No pending reports — all caught up! ✅",
+    approve: "Approve",
+    reject: "Reject",
+    loadingQueue: "Loading…",
+    notAdmin: "This account is not authorized as an admin.",
+    openInOsm: "View on map",
+    backToMap: "Back to map",
+
+    // Public map filters
+    filterAll: "All",
+    recentLive: "Live",
+    recent1h: "1h",
+    recent3h: "3h",
+    noLiveReports: "No live reports right now.",
+    live: "Live",
+    reportsCount: "reports",
+
+    // Welcome card (first visit)
+    welcomeTitle: "Welcome to JamKemon",
+    welcomeBody:
+      "See real-time road conditions across Dhaka, reported by people like you. Tap the 'Report' button below to share what you're seeing.",
+    welcomeCta: "Get started",
+    themeToggle: "Toggle theme",
+    locateMe: "Show my location",
+    searchPlaceholder: "Search an area (e.g. Mohakhali)",
+    searchNoResults: "No matches found",
+    searchSearching: "Searching…",
+
+    // Directions
+    directions: "Directions",
+    fromLabel: "From",
+    toLabel: "To",
+    yourLocation: "📍 Your location",
+    fromPlaceholder: "Starting point",
+    toPlaceholder: "Enter destination",
+    findRoute: "Find route",
+    routeFinding: "Finding route…",
+    routeError: "Couldn't find a route. Check the locations.",
+    reportsOnRoute: "Reports on your route",
+    noReportsOnRoute: "No reports on this route — looks clear!",
+    clearRoute: "Clear",
+    kmShort: "km",
+    minShort: "min",
+    trafficEstimateNote: "estimate without live traffic",
+  },
+} as const;
+
+export type MessageKey = keyof (typeof messages)["en"];

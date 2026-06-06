@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/* Make Tailwind's dark: variant follow a .dark class (toggled in JS), not the
+   OS setting — so our manual light/dark switch works. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+.dark {
+  --background: #0a0a0a;
+  --foreground: #e5e7eb;
+}
+
+@theme inline {
+  /* Inter first for Latin glyphs; Noto Sans Bengali catches বাংলা glyphs. */
+  --font-sans: var(--font-inter), var(--font-bengali), Arial, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* ---- Map ---------------------------------------------------------------- */
+.leaflet-container {
+  z-index: 0;
+  font-family: var(--font-sans);
+  background: #e8e8e8;
+}
+.dark .leaflet-container {
+  background: #0a0a0a;
+}
+
+/* Report pins: a white badge ringed in the category colour, emoji inside.
+   Size + glow set inline per severity. */
+.jk-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid var(--c);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.12s ease;
+  line-height: 1;
+}
+.jk-marker:hover {
+  transform: scale(1.14);
+}
+.jk-marker-high {
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 5px color-mix(in srgb, var(--c) 28%, transparent);
+}
+
+/* The draft pin keeps Leaflet's default look (set in JS). */
+
+/* Cleaner, theme-aware Leaflet popups. */
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+.leaflet-popup-content {
+  margin: 12px 14px;
+}
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+.dark .leaflet-popup-close-button {
+  color: #94a3b8;
+}
+
+/* Attribution: subtle in both themes. */
+.dark .leaflet-control-attribution {
+  background: rgba(17, 24, 39, 0.7) !important;
+  color: #94a3b8 !important;
+}
+.dark .leaflet-control-attribution a {
+  color: #cbd5e1 !important;
+}
+
+/* ---- Bits & pieces ------------------------------------------------------ */
+@keyframes jk-slideup {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.jk-slideup {
+  animation: jk-slideup 0.22s ease-out;
+}
+
+@keyframes jk-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.jk-fadein {
+  animation: jk-fadein 0.2s ease-out;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
