@@ -105,7 +105,10 @@ export default function DirectionsPanel() {
       className="pointer-events-none absolute inset-x-0 top-0 z-[1000] flex justify-center px-3"
       style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
     >
-      <div className="pointer-events-auto w-full max-w-md overflow-y-auto rounded-2xl bg-white shadow-xl ring-1 ring-black/5 backdrop-blur-md dark:bg-neutral-900 dark:ring-white/10" style={{ maxHeight: "calc(100dvh - env(safe-area-inset-top) - 1.5rem)" }}>
+      {/* No overflow clipping here: the address autocomplete dropdown needs to
+          spill outside the panel. The only tall section (reports on route) has
+          its own internal scroll, so the panel height stays bounded anyway. */}
+      <div className="pointer-events-auto w-full max-w-md rounded-2xl bg-white shadow-xl ring-1 ring-black/5 backdrop-blur-md dark:bg-neutral-900 dark:ring-white/10">
 
         {/* ---- Header ---- */}
         <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 dark:border-white/5">
@@ -137,7 +140,7 @@ export default function DirectionsPanel() {
             <div className="flex shrink-0 flex-col items-center gap-1">
               <div className="h-2.5 w-2.5 rounded-full border-2 border-slate-400 dark:border-slate-500" />
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="min-w-0 flex-1">
               {useGps ? (
                 <button
                   type="button"
@@ -179,7 +182,7 @@ export default function DirectionsPanel() {
             <div className="shrink-0">
               <div className="h-2.5 w-2.5 rounded-sm bg-rose-500 rotate-45" />
             </div>
-            <div className="flex-1 overflow-hidden">
+            <div className="min-w-0 flex-1">
               <PlaceInput
                 value={toText}
                 onChange={(v) => { setToText(v); if (!v) setToPlace(null); }}
