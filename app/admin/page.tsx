@@ -64,6 +64,28 @@ export default function AdminPage() {
     };
   }, [router, load]);
 
+  // Keep the queue fresh: re-check every 45s and whenever the tab regains focus,
+  // so newly submitted reports show up without a manual refresh.
+  useEffect(() => {
+    if (phase !== "ready") return;
+    const timer = setInterval(load, 45_000);
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [phase, load]);
+
+  // Reflect the pending count in the browser tab title (a lightweight badge).
+  useEffect(() => {
+    const base = "Pending reports — JamKemon";
+    document.title = reports.length > 0 ? `(${reports.length}) ${base}` : base;
+    return () => {
+      document.title = base;
+    };
+  }, [reports.length]);
+
   async function handleDecision(id: string, status: "approved" | "rejected") {
     setBusyId(id);
     const ok = await setReportStatus(id, status);
@@ -88,6 +110,14 @@ export default function AdminPage() {
           <h1 className="truncate text-sm font-bold text-slate-900 dark:text-slate-100 sm:text-base">
             {t("adminQueueTitle")}
           </h1>
+          {phase === "ready" && reports.length > 0 && (
+            <span
+              className="flex h-6 min-w-[1.5rem] shrink-0 items-center justify-center rounded-full bg-rose-600 px-1.5 text-xs font-bold text-white"
+              aria-label={`${reports.length} pending`}
+            >
+              {reports.length}
+            </span>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2 text-sm">
           <Link
