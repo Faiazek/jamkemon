@@ -71,6 +71,8 @@ export type NewReport = {
   // When the reporter actually saw it (ISO). May be earlier than now for
   // after-the-fact reports. The database validates and clamps this.
   observedAt: string;
+  // Public URL of an optional uploaded photo.
+  photoUrl?: string | null;
 };
 
 export type SubmitResult =
@@ -91,6 +93,7 @@ export async function submitReport(report: NewReport): Promise<SubmitResult> {
     category: report.category,
     severity: report.severity,
     description: report.description.trim() || null,
+    photo_url: report.photoUrl ?? null,
     reporter_token: getReporterToken(),
   };
 
@@ -126,6 +129,7 @@ export type Report = {
   description: string | null;
   status: "pending" | "approved" | "rejected";
   reporter_token: string | null;
+  photo_url?: string | null;
   still_count?: number;
   cleared_count?: number;
 };

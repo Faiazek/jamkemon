@@ -432,6 +432,16 @@ function PendingCard({
           </div>
         )}
 
+        {report.photo_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={report.photo_url}
+            alt=""
+            loading="lazy"
+            className="mt-2 max-h-48 w-full rounded-xl object-cover"
+          />
+        )}
+
         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
           <span>
             {timeAgo(report.created_at, locale)}
@@ -495,6 +505,15 @@ function LiveCard({
         <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
           {report.description}
         </p>
+      )}
+      {report.photo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={report.photo_url}
+          alt=""
+          loading="lazy"
+          className="mt-2 max-h-40 w-full rounded-xl object-cover"
+        />
       )}
       <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
         <span>

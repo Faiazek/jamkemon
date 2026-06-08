@@ -267,6 +267,15 @@ function ReportPopup({
           {report.description}
         </p>
       )}
+      {report.photo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={report.photo_url}
+          alt=""
+          loading="lazy"
+          className="mt-2 max-h-44 w-full rounded-lg object-cover"
+        />
+      )}
       <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
         🕒 {timeAgo(report.created_at, locale)}
         {stillCount > 0 && (

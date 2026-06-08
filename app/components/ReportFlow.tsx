@@ -16,6 +16,7 @@ import {
   type Category,
   type Severity,
 } from "../../lib/reports";
+import { uploadReportPhoto } from "../../lib/storage";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -28,6 +29,8 @@ export default function ReportFlow() {
   const [severity, setSeverity] = useState<Severity>("medium");
   const [seenMinutes, setSeenMinutes] = useState(0);
   const [description, setDescription] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [notConnected, setNotConnected] = useState(false);
   const [geoError, setGeoError] = useState(false);
@@ -37,6 +40,7 @@ export default function ReportFlow() {
     setSeverity("medium");
     setSeenMinutes(0);
     setDescription("");
+    clearPhoto();
     setSubmitState("idle");
     setNotConnected(false);
     setGeoError(false);
@@ -45,6 +49,20 @@ export default function ReportFlow() {
   function handleCancel() {
     resetForm();
     cancel();
+  }
+
+  function handlePhotoPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
+  function clearPhoto() {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoFile(null);
+    setPhotoPreview(null);
   }
 
   function handleUseLocation() {
@@ -66,6 +84,9 @@ export default function ReportFlow() {
   async function handleSubmit() {
     if (!category || !draft) return;
     setSubmitState("submitting");
+    // Upload the photo first (if any). If it fails, still submit the report.
+    let photoUrl: string | null = null;
+    if (photoFile) photoUrl = await uploadReportPhoto(photoFile);
     const result = await submitReport({
       lat: draft.lat,
       lng: draft.lng,
@@ -73,6 +94,7 @@ export default function ReportFlow() {
       severity,
       description,
       observedAt: new Date(Date.now() - seenMinutes * 60_000).toISOString(),
+      photoUrl,
     });
     if (result.ok) {
       setSubmitState("success");
@@ -240,6 +262,45 @@ export default function ReportFlow() {
               rows={2}
               className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none focus:border-rose-400 dark:border-white/10 dark:bg-neutral-800 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
+
+            {/* Photo (optional) */}
+            <div className="mt-3">
+              {photoPreview ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoPreview}
+                    alt=""
+                    className="h-40 w-full rounded-xl object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={clearPhoto}
+                    className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur transition hover:bg-black/80"
+                    aria-label={t("removePhoto")}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 px-3 py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-50 dark:border-white/15 dark:text-slate-400 dark:hover:bg-white/5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 8a2 2 0 012-2h2l1.5-2h7L18 4h2a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                    <circle cx="12" cy="12.5" r="3.2" stroke="currentColor" strokeWidth="2" />
+                  </svg>
+                  {t("addPhoto")}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handlePhotoPick}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
 
             {submitState === "error" && (
               <p className="mt-2 text-center text-xs text-rose-600">
