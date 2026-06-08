@@ -226,3 +226,73 @@ export async function setReportStatus(
   }
   return true;
 }
+
+// Edit a report's details (admin only). Used by "edit before approving".
+export type ReportEdits = {
+  category: Category;
+  severity: Severity;
+  description: string | null;
+};
+export async function updateReportFields(
+  id: string,
+  edits: ReportEdits
+): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase
+    .from("reports")
+    .update({
+      category: edits.category,
+      severity: edits.severity,
+      description: edits.description?.trim() || null,
+    })
+    .eq("id", id);
+  if (error) {
+    console.error("updateReportFields failed:", error);
+    return false;
+  }
+  return true;
+}
+
+// Take a live report off the map immediately by expiring it now ("mark cleared"
+// / "end early"). Admin only.
+export async function clearReportNow(id: string): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase
+    .from("reports")
+    .update({ expires_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) {
+    console.error("clearReportNow failed:", error);
+    return false;
+  }
+  return true;
+}
+
+// Keep a live report on the map longer by pushing its expiry out. Admin only.
+export async function extendReport(id: string, minutes: number): Promise<boolean> {
+  if (!supabase) return false;
+  const until = new Date(Date.now() + minutes * 60_000).toISOString();
+  const { error } = await supabase
+    .from("reports")
+    .update({ expires_at: until })
+    .eq("id", id);
+  if (error) {
+    console.error("extendReport failed:", error);
+    return false;
+  }
+  return true;
+}
+
+// Count reports submitted since a given time (admin only) — for the dashboard.
+export async function countReportsSince(sinceIso: string): Promise<number> {
+  if (!supabase) return 0;
+  const { count, error } = await supabase
+    .from("reports")
+    .select("id", { count: "exact", head: true })
+    .gte("created_at", sinceIso);
+  if (error) {
+    console.error("countReportsSince failed:", error);
+    return 0;
+  }
+  return count ?? 0;
+}
