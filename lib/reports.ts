@@ -126,7 +126,56 @@ export type Report = {
   description: string | null;
   status: "pending" | "approved" | "rejected";
   reporter_token: string | null;
+  still_count?: number;
+  cleared_count?: number;
 };
+
+export type FeedbackVote = "still" | "cleared";
+
+// Record a community vote that a report is still happening or has cleared.
+// One vote per device per report (enforced by a DB unique constraint); a repeat
+// vote just fails quietly. Returns true if the vote was accepted.
+export async function submitFeedback(
+  reportId: string,
+  vote: FeedbackVote
+): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase.from("report_feedback").insert({
+    report_id: reportId,
+    reporter_token: getReporterToken(),
+    vote,
+  });
+  if (error) {
+    // 23505 = unique violation (already voted) — treat as success.
+    if (error.code === "23505") return true;
+    console.error("submitFeedback failed:", error);
+    return false;
+  }
+  return true;
+}
+
+// Remember which reports this device has voted on (so the UI can disable the
+// buttons), kept in the browser only.
+const VOTES_KEY = "jamkemon.votes";
+export function getLocalVote(reportId: string): FeedbackVote | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const map = JSON.parse(window.localStorage.getItem(VOTES_KEY) || "{}");
+    return map[reportId] ?? null;
+  } catch {
+    return null;
+  }
+}
+export function setLocalVote(reportId: string, vote: FeedbackVote): void {
+  if (typeof window === "undefined") return;
+  try {
+    const map = JSON.parse(window.localStorage.getItem(VOTES_KEY) || "{}");
+    map[reportId] = vote;
+    window.localStorage.setItem(VOTES_KEY, JSON.stringify(map));
+  } catch {
+    /* ignore */
+  }
+}
 
 // Select all columns rather than naming observed_at explicitly: that keeps the
 // read working whether or not the observed_at migration has been applied yet

@@ -145,6 +145,13 @@ export const messages = {
     kmShort: "কিমি",
     minShort: "মিনিট",
     trafficEstimateNote: "লাইভ ট্রাফিক ছাড়া আনুমানিক সময়",
+
+    // Community confirmations
+    confirmPrompt: "এখনও আছে?",
+    stillHappening: "এখনও আছে",
+    nowCleared: "পরিষ্কার হয়েছে",
+    confirmThanks: "ধন্যবাদ! আপনার মতামত যোগ হয়েছে।",
+    confirmedCount: "জন নিশ্চিত করেছেন",
   },
   en: {
     appName: "JamKemon",
@@ -287,6 +294,13 @@ export const messages = {
     kmShort: "km",
     minShort: "min",
     trafficEstimateNote: "estimate without live traffic",
+
+    // Community confirmations
+    confirmPrompt: "Still there?",
+    stillHappening: "Still happening",
+    nowCleared: "It's cleared",
+    confirmThanks: "Thanks! Your input was added.",
+    confirmedCount: "confirmed",
   },
 } as const;
 

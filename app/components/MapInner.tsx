@@ -4,7 +4,7 @@
 // approved reports shown as category-icon pins, and a draggable pin while
 // reporting.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AttributionControl,
   MapContainer,
@@ -18,7 +18,16 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useReport } from "../report/ReportContext";
-import { CATEGORIES, SEVERITIES, type Report, type Severity } from "../../lib/reports";
+import {
+  CATEGORIES,
+  SEVERITIES,
+  submitFeedback,
+  getLocalVote,
+  setLocalVote,
+  type FeedbackVote,
+  type Report,
+  type Severity,
+} from "../../lib/reports";
 import { timeAgo } from "../../lib/time";
 import type { Locale, MessageKey } from "../i18n/messages";
 
@@ -198,7 +207,6 @@ function ReportMarkers({
     <>
       {reports.map((r) => {
         const cat = CATEGORIES.find((c) => c.key === r.category);
-        const sev = SEVERITIES.find((s) => s.key === r.severity);
         return (
           <Marker
             key={r.id}
@@ -206,34 +214,96 @@ function ReportMarkers({
             icon={reportIcon(cat?.color ?? "#64748b", r.severity, cat?.emoji ?? "📍")}
           >
             <Popup>
-              <div className="min-w-[160px]">
-                <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-slate-100">
-                  <span>{cat?.emoji}</span>
-                  <span>{cat ? t(cat.labelKey) : r.category}</span>
-                  <span
-                    className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                    style={{
-                      backgroundColor: (cat?.color ?? "#64748b") + "22",
-                      color: cat?.color ?? "#64748b",
-                    }}
-                  >
-                    {sev ? t(sev.labelKey) : r.severity}
-                  </span>
-                </div>
-                {r.description && (
-                  <p className="mt-1.5 text-sm text-slate-700 dark:text-slate-300">
-                    {r.description}
-                  </p>
-                )}
-                <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
-                  🕒 {timeAgo(r.created_at, locale)}
-                </p>
-              </div>
+              <ReportPopup report={r} locale={locale} t={t} />
             </Popup>
           </Marker>
         );
       })}
     </>
+  );
+}
+
+// Popup body for a report, including the community "still happening / cleared"
+// confirmation buttons.
+function ReportPopup({
+  report,
+  locale,
+  t,
+}: {
+  report: Report;
+  locale: Locale;
+  t: (key: MessageKey) => string;
+}) {
+  const cat = CATEGORIES.find((c) => c.key === report.category);
+  const sev = SEVERITIES.find((s) => s.key === report.severity);
+  const [vote, setVote] = useState<FeedbackVote | null>(() => getLocalVote(report.id));
+  const [stillCount, setStillCount] = useState(report.still_count ?? 0);
+
+  function cast(choice: FeedbackVote) {
+    if (vote) return;
+    setVote(choice);
+    setLocalVote(report.id, choice);
+    if (choice === "still") setStillCount((n) => n + 1);
+    submitFeedback(report.id, choice);
+  }
+
+  return (
+    <div className="min-w-[180px]">
+      <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900 dark:text-slate-100">
+        <span>{cat?.emoji}</span>
+        <span>{cat ? t(cat.labelKey) : report.category}</span>
+        <span
+          className="ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold"
+          style={{
+            backgroundColor: (cat?.color ?? "#64748b") + "22",
+            color: cat?.color ?? "#64748b",
+          }}
+        >
+          {sev ? t(sev.labelKey) : report.severity}
+        </span>
+      </div>
+      {report.description && (
+        <p className="mt-1.5 text-sm text-slate-700 dark:text-slate-300">
+          {report.description}
+        </p>
+      )}
+      <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+        🕒 {timeAgo(report.created_at, locale)}
+        {stillCount > 0 && (
+          <span className="ml-2 text-emerald-600 dark:text-emerald-400">
+            👍 {stillCount} {t("confirmedCount")}
+          </span>
+        )}
+      </p>
+
+      {vote ? (
+        <p className="mt-2 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">
+          {t("confirmThanks")}
+        </p>
+      ) : (
+        <div className="mt-2">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+            {t("confirmPrompt")}
+          </p>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => cast("still")}
+              className="flex-1 rounded-full bg-emerald-600 px-2 py-1.5 text-xs font-bold text-white transition hover:bg-emerald-700 active:scale-95"
+            >
+              👍 {t("stillHappening")}
+            </button>
+            <button
+              type="button"
+              onClick={() => cast("cleared")}
+              className="flex-1 rounded-full border border-slate-300 px-2 py-1.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100 active:scale-95 dark:border-white/15 dark:text-slate-300 dark:hover:bg-white/10"
+            >
+              ✅ {t("nowCleared")}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
