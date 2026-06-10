@@ -14,20 +14,27 @@
 }
 
 @theme inline {
-  /* Inter first for Latin glyphs; Noto Sans Bengali catches বাংলা glyphs. */
-  --font-sans: var(--font-inter), var(--font-bengali), Arial, sans-serif;
+  /* Geist first for Latin glyphs; Hind Siliguri catches বাংলা glyphs. */
+  --font-sans: var(--font-geist), var(--font-hind), Arial, sans-serif;
+}
+
+/* The JamKemon wordmark is set in Hind Siliguri for a distinct brand look. */
+.jk-wordmark {
+  font-family: var(--font-hind), var(--font-geist), sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  /* Geist for Latin, Hind Siliguri for বাংলা. Set directly (not via the
+     Tailwind --font-sans theme var, which doesn't override reliably here). */
+  font-family: var(--font-geist), var(--font-hind), Arial, sans-serif;
 }
 
 /* ---- Map ---------------------------------------------------------------- */
 .leaflet-container {
   z-index: 0;
-  font-family: var(--font-sans);
+  font-family: var(--font-geist), var(--font-hind), Arial, sans-serif;
   background: #e8e8e8;
 }
 .dark .leaflet-container {

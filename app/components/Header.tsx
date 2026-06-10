@@ -25,6 +25,9 @@ export default function TopBar() {
     >
       <div className="pointer-events-auto flex w-full max-w-2xl items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 shadow-lg ring-1 ring-black/5 backdrop-blur-md dark:bg-neutral-900/90 dark:ring-white/10">
         <Logo className="h-8 w-8 shrink-0" />
+        <span className="jk-wordmark hidden shrink-0 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:block">
+          JamKemon
+        </span>
 
         <SearchBar />
 

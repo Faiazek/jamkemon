@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_Bengali } from "next/font/google";
+import { Geist, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "./i18n/LanguageProvider";
 import { ReportProvider } from "./report/ReportContext";
@@ -7,16 +7,18 @@ import { ReportsProvider } from "./report/ReportsContext";
 import { DirectionsProvider } from "./directions/DirectionsContext";
 import { ThemeProvider } from "./theme/ThemeProvider";
 
-// Inter covers English/Latin; Noto Sans Bengali covers বাংলা. Both are listed
-// in the font stack (see globals.css) so mixed text renders correctly.
-const inter = Inter({
-  variable: "--font-inter",
+// Geist covers English/Latin; Hind Siliguri covers বাংলা (and the JamKemon
+// wordmark). Both are listed in the font stack (see globals.css) so mixed text
+// renders correctly. Hind Siliguri isn't a variable font, so weights are listed.
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
 });
 
-const notoBengali = Noto_Sans_Bengali({
-  variable: "--font-bengali",
-  subsets: ["bengali"],
+const hindSiliguri = Hind_Siliguri({
+  variable: "--font-hind",
+  weight: ["400", "500", "600", "700"],
+  subsets: ["bengali", "latin"],
 });
 
 export const metadata: Metadata = {
@@ -50,7 +52,7 @@ export default function RootLayout({
     <html
       lang="bn"
       suppressHydrationWarning
-      className={`${inter.variable} ${notoBengali.variable} h-full antialiased`}
+      className={`${geist.variable} ${hindSiliguri.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlashTheme }} />

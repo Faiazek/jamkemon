@@ -30,7 +30,10 @@ export default function WelcomeCard() {
         <div className="mx-auto flex h-16 w-16 items-center justify-center">
           <Logo className="h-16 w-16" />
         </div>
-        <h2 className="mt-3 text-xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+        <p className="jk-wordmark mt-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          JamKemon
+        </p>
+        <h2 className="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
           {t("welcomeTitle")}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
