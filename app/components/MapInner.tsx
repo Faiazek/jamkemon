@@ -336,8 +336,12 @@ export default function MapInner({
   // MapTiler "Streets" — readable, Google-like labels in light and dark.
   const key = process.env.NEXT_PUBLIC_MAPTILER_KEY;
   const style = theme === "dark" ? "streets-v2-dark" : "streets-v2";
+  // language=en forces English/Latin map labels. The raster tiles render Bengali
+  // conjuncts poorly (broken glyphs), and we want the map readable regardless of
+  // the app's UI language — so map labels stay English while the rest of the app
+  // is bilingual.
   const tileUrl = key
-    ? `https://api.maptiler.com/maps/${style}/{z}/{x}/{y}.png?key=${key}`
+    ? `https://api.maptiler.com/maps/${style}/{z}/{x}/{y}.png?key=${key}&language=en`
     : // fallback if no key configured
       theme === "dark"
       ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
