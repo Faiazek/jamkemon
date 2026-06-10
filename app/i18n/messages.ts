@@ -30,6 +30,7 @@ export const messages = {
     seen1h: "~১ ঘণ্টা আগে",
     seen2h: "~২ ঘণ্টা আগে",
     seenAgoPrefix: "দেখা গেছে",
+    reportedPrefix: "রিপোর্ট",
     descriptionLabel: "বিস্তারিত (ঐচ্ছিক)",
     descriptionPlaceholder: "যেমন: ট্রাক নষ্ট হয়ে এক লেন বন্ধ",
     addPhoto: "ছবি যোগ করুন (ঐচ্ছিক)",
@@ -155,6 +156,17 @@ export const messages = {
     nowCleared: "পরিষ্কার হয়েছে",
     confirmThanks: "ধন্যবাদ! আপনার মতামত যোগ হয়েছে।",
     confirmedCount: "জন নিশ্চিত করেছেন",
+
+    // Feedback / bug report
+    feedbackButton: "মতামত",
+    feedbackTitle: "মতামত বা সমস্যা জানান",
+    feedbackBody: "কী ভালো লাগছে, কী কাজ করছে না, বা কী যোগ করতে চান — সব জানান।",
+    feedbackPlaceholder: "আপনার মতামত লিখুন…",
+    feedbackContactPlaceholder: "ইমেইল বা ফোন (ঐচ্ছিক)",
+    feedbackSend: "পাঠান",
+    feedbackSending: "পাঠানো হচ্ছে…",
+    feedbackThanks: "ধন্যবাদ! আপনার মতামত পেয়েছি।",
+    feedbackError: "পাঠানো যায়নি। আবার চেষ্টা করুন।",
   },
   en: {
     appName: "JamKemon",
@@ -182,6 +194,7 @@ export const messages = {
     seen1h: "~1 hour ago",
     seen2h: "~2 hours ago",
     seenAgoPrefix: "Seen",
+    reportedPrefix: "Reported",
     descriptionLabel: "Details (optional)",
     descriptionPlaceholder: "e.g. Truck broke down, one lane blocked",
     addPhoto: "Add a photo (optional)",
@@ -307,6 +320,17 @@ export const messages = {
     nowCleared: "It's cleared",
     confirmThanks: "Thanks! Your input was added.",
     confirmedCount: "confirmed",
+
+    // Feedback / bug report
+    feedbackButton: "Feedback",
+    feedbackTitle: "Send feedback or report a bug",
+    feedbackBody: "Tell me what's working, what's broken, or what you'd like added.",
+    feedbackPlaceholder: "Your feedback…",
+    feedbackContactPlaceholder: "Email or phone (optional)",
+    feedbackSend: "Send",
+    feedbackSending: "Sending…",
+    feedbackThanks: "Thank you! We got your feedback.",
+    feedbackError: "Couldn't send. Please try again.",
   },
 } as const;
 

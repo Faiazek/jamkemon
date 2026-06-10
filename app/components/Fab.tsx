@@ -19,7 +19,7 @@ export default function Fab() {
     <button
       type="button"
       onClick={startReport}
-      className="absolute bottom-5 right-4 z-[1000] flex items-center gap-2 rounded-full bg-rose-600 p-4 text-white shadow-xl shadow-rose-900/25 ring-4 ring-white/40 transition hover:bg-rose-700 active:scale-95 sm:px-5"
+      className="absolute bottom-5 right-4 z-[1000] flex items-center gap-2 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 p-4 text-white shadow-lg shadow-rose-600/35 ring-4 ring-white/50 transition hover:from-rose-600 hover:to-rose-700 hover:shadow-rose-600/45 active:scale-95 dark:ring-white/15 sm:px-5"
       style={{ marginBottom: "env(safe-area-inset-bottom)" }}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

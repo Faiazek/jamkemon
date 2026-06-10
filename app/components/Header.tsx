@@ -23,13 +23,15 @@ export default function TopBar() {
       className="pointer-events-none absolute inset-x-0 top-0 z-[1000] flex justify-center px-3 pt-3"
       style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
     >
-      <div className="pointer-events-auto flex w-full max-w-2xl items-center gap-2 rounded-2xl bg-white/90 px-3 py-2 shadow-lg ring-1 ring-black/5 backdrop-blur-md dark:bg-neutral-900/90 dark:ring-white/10">
+      <div className="jk-float pointer-events-auto flex w-full max-w-2xl items-center gap-2.5 rounded-2xl bg-white/80 px-3 py-2 ring-1 ring-black/5 backdrop-blur-xl dark:bg-neutral-900/80 dark:ring-white/10">
         <Logo className="h-8 w-8 shrink-0" />
         <span className="jk-wordmark hidden shrink-0 text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:block">
           JamKemon
         </span>
 
         <SearchBar />
+
+        <span className="h-6 w-px shrink-0 bg-slate-200/80 dark:bg-white/10" />
 
         <div className="flex shrink-0 items-center gap-1">
           <button

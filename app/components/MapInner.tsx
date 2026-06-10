@@ -238,6 +238,12 @@ function ReportPopup({
   const sev = SEVERITIES.find((s) => s.key === report.severity);
   const [vote, setVote] = useState<FeedbackVote | null>(() => getLocalVote(report.id));
   const [stillCount, setStillCount] = useState(report.still_count ?? 0);
+  // Show a separate "seen" line when the reporter witnessed it meaningfully
+  // earlier than they submitted (an after-the-fact / offline report).
+  const afterTheFact =
+    !!report.observed_at &&
+    new Date(report.created_at).getTime() - new Date(report.observed_at).getTime() >
+      3 * 60_000;
 
   function cast(choice: FeedbackVote) {
     if (vote) return;
@@ -276,14 +282,21 @@ function ReportPopup({
           className="mt-2 max-h-44 w-full rounded-lg object-cover"
         />
       )}
-      <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
-        🕒 {timeAgo(report.created_at, locale)}
-        {stillCount > 0 && (
-          <span className="ml-2 text-emerald-600 dark:text-emerald-400">
-            👍 {stillCount} {t("confirmedCount")}
-          </span>
+      <div className="mt-1.5 space-y-0.5 text-xs text-slate-400 dark:text-slate-500">
+        <p>
+          🕒 {t("reportedPrefix")} {timeAgo(report.created_at, locale)}
+          {stillCount > 0 && (
+            <span className="ml-2 text-emerald-600 dark:text-emerald-400">
+              👍 {stillCount} {t("confirmedCount")}
+            </span>
+          )}
+        </p>
+        {afterTheFact && (
+          <p className="text-amber-600 dark:text-amber-500">
+            👀 {t("seenAgoPrefix")} {timeAgo(report.observed_at!, locale)}
+          </p>
         )}
-      </p>
+      </div>
 
       {vote ? (
         <p className="mt-2 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">
