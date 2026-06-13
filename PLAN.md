@@ -238,6 +238,80 @@ blocker is data, so the plan is "lay the pipe now, build the dashboards later."
 
 ---
 
+## 7d. Expansion ideas (unscheduled backlog)
+
+A catalog for when JamKemon expands — captured so nothing's lost, not yet
+prioritized. Rough effort tags: **S** = days, **M** = a week-ish, **L** = multi-week.
+Items already specced elsewhere are cross-referenced, not repeated.
+
+### Headline bets (highest leverage / most differentiated)
+- **Realistic ETA** (M). Combine existing routing + reports-on-route into one number:
+  "Google says 25 min — 3 jams reported ahead, expect ~45." The sharpest answer to
+  "why use this over Google Maps," and mostly wiring two things already built.
+- **Waterlogging prediction, weather-tied** (M). Pull a weather API; when heavy rain
+  hits historically flood-prone junctions, surface "⚠️ Bijoy Sarani usually floods in
+  rain like this." Intensely local, no competitor does it, and it gives the map value
+  *before* anyone reports — attacks the empty-map problem from a new angle. (Needs the
+  report history from §7c to identify flood-prone spots.)
+- **Embeddable live-map widget for news sites** (M). An `<iframe>` "Dhaka traffic right
+  now" that news portals drop into articles = distribution + credibility via a channel
+  the founder (ex-Dhaka Tribune) can actually open. A growth lever most solo builders
+  don't have.
+- **Civic angle — escalation + open data** (L). Surface *persistent* problems (dead
+  signals, unannounced U-turn closures — the founder's own LinkedIn story) to
+  DNCC/traffic police, plus a public data feed for researchers/journalists. The
+  mission/PR narrative that earns press — itself a growth engine.
+
+### Supply — more reports (the cold-start constraint)
+- **Quick-report (1–2 taps)** (S). Collapse the happy path to tap → category → done
+  (GPS location, severity defaults). Highest-leverage fix for the empty map.
+- **Instant gratification** (S–M). Show a reporter their own pin immediately
+  (optimistic/local) so submitting visibly *does something* despite the approval gate.
+- **Seed from the Facebook "Traffic Alert" group** (M). Admin "quick-add" tool /
+  bookmarklet to turn a FB post into a map pin in seconds — bootstrap real content by
+  hand. (The founder's origin-story idea.)
+
+### Smarter data
+- **Typical-traffic heatmap** — see §7c (volume-gated).
+- **Weekly trends page** (`/trends`) — see §7c (doubles as shareable content engine).
+- **Reporter reputation** (M) — track who's reliable; foundation for the next item.
+
+### Solve the moderation bottleneck (buys back founder time)
+- **Trusted-reporter auto-approval** (M). Reliable reporters skip the queue — the real
+  scaling constraint as volume grows. Depends on reputation.
+- **Abuse flag on a pin** (S) so the community helps moderate.
+
+### Two-sided community
+- **Reporter leaderboard / badges** (M) — reward top contributors, drives supply.
+- **"Still clearing" / comment thread** on a report (M) for richer live context (extends
+  the existing still/cleared confirmations).
+
+### Distribution (very Dhaka)
+- **Telegram broadcast channel** (S) — auto-post approved reports out; reuses existing
+  Telegram wiring, no iOS problem, reach beyond the site.
+- **Telegram two-way bot** (M) — also report *in* by sending a location in chat; meets
+  people where they already are.
+- **QR stickers** (S, mostly offline effort) — on rickshaws, bus stops, café tables.
+  Guerrilla, cheap, hyper-local.
+- **SEO area pages** (`/area/<name>`, M) — "Gulshan traffic now" SSR pages that rank on
+  Google; same pattern as `/r/[id]`. Slow-burn compounding search demand.
+
+### Utility expansion
+- **Multi-modal routing** (L) — rickshaw / CNG / bike vs car routes.
+- **Offline / low-data mode** (M) — for Dhaka mobile data; queue a report and send when
+  signal returns (extends the existing after-the-fact reporting).
+- **Saved places / commute mode** (S–M) — one-tap "how's my route right now"; retention
+  via utility, no push infra needed.
+
+### Someday (sustainability)
+- **Sponsored local markers / "supported by"** (M) — a non-intrusive revenue path once
+  traffic justifies it.
+
+> Already shipped: shareable report links (§7b M1). Already specced/deferred:
+> watch-area + push (§7b M2), data products (§7c). Known risks: §6.
+
+---
+
 ## 8. Open questions for later
 
 - **Coverage scope:** Dhaka only at launch, or Chattogram/other cities too?
