@@ -238,6 +238,41 @@ export async function fetchApprovedReports(): Promise<Report[]> {
   return (data as Report[]) ?? [];
 }
 
+// ---- Shareable links (/r/<id>) -------------------------------------------
+
+// The safe public subset returned by the get_shared_report RPC (see
+// supabase/shared_report.sql). Available for any approved report regardless of
+// expiry, so a previously-shared link still renders a preview.
+export type SharedReport = {
+  id: string;
+  created_at: string;
+  observed_at: string | null;
+  expires_at: string;
+  lat: number;
+  lng: number;
+  category: Category;
+  severity: Severity;
+  description: string | null;
+  photo_url: string | null;
+};
+
+// Fetch one approved report for a shareable link. Works server-side (used by the
+// /r/[id] page + its OG image). Returns null for missing/pending/rejected ids.
+export async function fetchSharedReport(id: string): Promise<SharedReport | null> {
+  if (!supabase) return null;
+  // Cheap guard so malformed ids never hit the database.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return null;
+  }
+  const { data, error } = await supabase.rpc("get_shared_report", { report_id: id });
+  if (error) {
+    console.error("fetchSharedReport failed:", error);
+    return null;
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  return (row as SharedReport) ?? null;
+}
+
 // ---- Reconciliation ------------------------------------------------------
 
 // How close two same-category reports must be to count as "the same situation".

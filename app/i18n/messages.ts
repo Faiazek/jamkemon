@@ -172,6 +172,13 @@ export const messages = {
     feedbackSending: "পাঠানো হচ্ছে…",
     feedbackThanks: "ধন্যবাদ! আপনার মতামত পেয়েছি।",
     feedbackError: "পাঠানো যায়নি। আবার চেষ্টা করুন।",
+
+    // Share
+    shareButton: "শেয়ার",
+    linkCopied: "লিংক কপি হয়েছে",
+    sharedOpenMap: "লাইভ ম্যাপ দেখুন",
+    sharedReportCta: "নিজে রিপোর্ট করুন",
+    sharedExpired: "এই রিপোর্টটির মেয়াদ শেষ — হয়তো এখন রাস্তা পরিষ্কার।",
   },
   en: {
     appName: "JamKemon",
@@ -341,6 +348,13 @@ export const messages = {
     feedbackSending: "Sending…",
     feedbackThanks: "Thank you! We got your feedback.",
     feedbackError: "Couldn't send. Please try again.",
+
+    // Share
+    shareButton: "Share",
+    linkCopied: "Link copied",
+    sharedOpenMap: "See the live map",
+    sharedReportCta: "Report something yourself",
+    sharedExpired: "This report has expired — the road may now be clear.",
   },
 } as const;
 

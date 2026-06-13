@@ -138,6 +138,57 @@ MVP = Phases 0–3 (a real, usable, moderated live map). Everything after is gro
 
 ---
 
+## 7b. Growth push (post-launch)
+
+The app launched with Phases 0–5 effectively shipped (moderation, confirmations,
+directions, search, photos, PWA manifest, Telegram alerts to admin, in-app
+feedback + admin feedback tab). The next work is **growth and retention**, not
+finishing the MVP. Two milestones, built in order.
+
+### Milestone 1 — Shareable report links *(acquisition)*
+
+Every jam shared to WhatsApp/Facebook should become a rich link preview that
+pulls people back to the site (today people screenshot the FB group instead).
+
+- **New route `/r/[id]`** — the app's first SSR page. `generateMetadata()` emits
+  Open Graph + Twitter tags; the page shows a mini map, category/severity badge,
+  time, photo, and CTAs ("See the live map" / "Report something"). Bilingual.
+- **Dynamic OG image** `app/r/[id]/opengraph-image.tsx` via `ImageResponse` —
+  branded 1200×630 card (wordmark, category emoji, severity, area, "Reported X
+  ago"). v2: composite a real OSM static-tile thumbnail. *(Confirm `ImageResponse`
+  exists in this Next build first — read `node_modules/next/dist/docs/`.)*
+- **Data access:** anon RLS only exposes approved + non-expired rows, but a link
+  shared an hour ago must still render. Add a `get_shared_report(id)` RPC
+  (`SECURITY DEFINER`) returning a safe public subset for **approved** reports
+  regardless of expiry, nothing for pending/rejected. Expired → "since cleared"
+  state, not a 404.
+- **Share button** on the map report popup: `navigator.share()` on mobile, copy
+  link fallback on desktop.
+- **DB:** one migration (the RPC). No schema change.
+
+### Milestone 2 — Watch a route/area + push *(retention)*
+
+Turn one-time visitors into daily users: "tell me when something's reported on
+my commute."
+
+- **Service worker** (`public/sw.js`, `push` + `notificationclick`) — doesn't
+  exist yet; add + register. **VAPID keys** in env. **`subscriptions` table**:
+  `reporter_token`, watched area (center + radius) or route (polyline + buffer),
+  Web Push endpoint/keys, label, `active`.
+- **Entry points:** "Watch this area" from the map; "Watch this route" from the
+  directions panel; a "My alerts" panel to manage/mute.
+- **Fan-out:** on report → **approved**, match subscriptions and send Web Push.
+  No PostGIS today, so add a haversine SQL helper (or PostGIS); trigger via a new
+  webhook on `reports` UPDATE → `/api/notify-subscribers` (mirrors the existing
+  `report-created` insert webhook).
+- **⚠️ Reach caveat:** iOS Web Push only works for **installed PWAs** (iOS 16.4+);
+  Android Chrome works in-browser. Add an "Add to Home Screen" nudge so iOS users
+  can actually receive alerts.
+
+Order: ship M1 first (growth now), then M2 (the retention loop).
+
+---
+
 ## 8. Open questions for later
 
 - **Coverage scope:** Dhaka only at launch, or Chattogram/other cities too?

@@ -238,6 +238,24 @@ function ReportPopup({
   const sev = SEVERITIES.find((s) => s.key === report.severity);
   const [vote, setVote] = useState<FeedbackVote | null>(() => getLocalVote(report.id));
   const [stillCount, setStillCount] = useState(report.still_count ?? 0);
+  const [copied, setCopied] = useState(false);
+
+  function handleShare() {
+    const url = `${window.location.origin}/r/${report.id}`;
+    const label = cat ? t(cat.labelKey) : report.category;
+    const title = `${cat?.emoji ?? "📍"} ${label} — JamKemon`;
+    if (navigator.share) {
+      navigator.share({ title, url }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {});
+    }
+  }
   // Show a separate "seen" line when the reporter witnessed it meaningfully
   // earlier than they submitted (an after-the-fact / offline report).
   const afterTheFact =
@@ -297,6 +315,14 @@ function ReportPopup({
           </p>
         )}
       </div>
+
+      <button
+        type="button"
+        onClick={handleShare}
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-full border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 active:scale-95 dark:border-white/15 dark:text-slate-300 dark:hover:bg-white/10"
+      >
+        🔗 {copied ? t("linkCopied") : t("shareButton")}
+      </button>
 
       {vote ? (
         <p className="mt-2 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400">
