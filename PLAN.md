@@ -198,6 +198,46 @@ Order: ship M1 first (growth now), then M2 (the retention loop).
 
 ---
 
+## 7c. Data products (future phase — gated on report volume)
+
+Two compounding features that turn accumulated reports into value *even when the
+live map is quiet*. **Not buildable yet:** as of 2026-06-13 there are only ~26
+reports total (~8 approved). These need real volume (rough gate: ~500+ historical
+reports) or they show noise dressed up as insight. Architecture is simple; the
+blocker is data, so the plan is "lay the pipe now, build the dashboards later."
+
+**Data status (verified 2026-06-13):**
+- ✅ History accumulates — expired rows are retained (no cleanup/delete job). If a
+  cleanup job is ever added, it must **archive, not delete**.
+- ❌ `area` column is empty on every row (schema has it; the client never sets it).
+- ❌ No PostGIS — use grid-snap / geohash for spatial bucketing instead.
+
+**Prerequisite (cheap, independently useful, do first when revisiting):**
+- **Reverse-geocode on admin approval** → populate `reports.area`. Reuse the
+  Barikoi/Photon clients in `lib/geocode.ts` (reverse endpoints). Makes "by area"
+  grouping trivial and lets Telegram alerts / share pages show "Mohakhali" instead
+  of raw coords.
+
+**A. Typical-traffic heatmap.**
+- Aggregate approved reports into spatial cells (round lat/lng to ~3 dp ≈ 110 m, or
+  geohash), weighted by severity, bucketed by hour-of-day / weekday.
+- Serve via `get_hotspots(hour?, weekday?)` RPC (`SECURITY DEFINER`, returns only
+  aggregated `{lat,lng,weight}` — no raw rows). At scale: nightly materialized view + `pg_cron`.
+- Render a `leaflet.heat` layer behind a "Live / Typical" toggle + hour slider.
+- **Credibility gate:** only show cells with ≥~5 reports; caption "based on X reports
+  over Y weeks"; hide the feature below the volume gate. Frame honestly as "where
+  people *report* problems," not sensor-grade speed data.
+
+**B. Weekly trends page (`/trends`).**
+- SSR page (revalidate hourly), reusing the admin `StatsView` styling; bilingual.
+- `get_weekly_trends()` RPC: worst areas, category split, busiest hours, total +
+  week-over-week delta.
+- Generate an OG image (reuse the `/r/[id]` Satori infra) → doubles as the
+  auto-postable "JamKemon weekly" card for Telegram/Facebook (same build as the
+  content-engine idea).
+
+---
+
 ## 8. Open questions for later
 
 - **Coverage scope:** Dhaka only at launch, or Chattogram/other cities too?
