@@ -95,6 +95,11 @@ export const messages = {
     statWeek: "এই সপ্তাহে",
     statByCategory: "ধরন অনুযায়ী (লাইভ)",
     statReportsSubmitted: "জমা পড়া রিপোর্ট",
+    tabFeedback: "মতামত",
+    feedbackQueueEmpty: "এখনো কোনো মতামত আসেনি।",
+    feedbackDismiss: "সম্পন্ন",
+    feedbackContactLabel: "যোগাযোগ",
+    feedbackUnread: "অপঠিত",
 
     // Public map filters
     filterAll: "সব",
@@ -259,6 +264,11 @@ export const messages = {
     statWeek: "This week",
     statByCategory: "By category (live)",
     statReportsSubmitted: "reports submitted",
+    tabFeedback: "Feedback",
+    feedbackQueueEmpty: "No feedback yet.",
+    feedbackDismiss: "Done",
+    feedbackContactLabel: "Contact",
+    feedbackUnread: "unread",
 
     // Public map filters
     filterAll: "All",

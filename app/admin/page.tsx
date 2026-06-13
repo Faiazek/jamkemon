@@ -30,10 +30,11 @@ import {
   type ReportEdits,
   type Severity,
 } from "../../lib/reports";
+import { fetchFeedback, dismissFeedback, type FeedbackRow } from "../../lib/feedback";
 import { timeAgo } from "../../lib/time";
 
 type Phase = "checking" | "not-admin" | "ready";
-type Tab = "pending" | "live" | "stats";
+type Tab = "pending" | "live" | "stats" | "feedback";
 
 // True when the reporter saw the situation meaningfully earlier than they
 // submitted it (an after-the-fact / offline report) — worth flagging to admins.
@@ -49,6 +50,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("pending");
   const [pending, setPending] = useState<Report[]>([]);
   const [live, setLive] = useState<Report[]>([]);
+  const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
   const [today, setToday] = useState(0);
   const [week, setWeek] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -57,16 +59,18 @@ export default function AdminPage() {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
     const weekAgo = new Date(Date.now() - 7 * 86_400_000);
-    const [p, l, td, wk] = await Promise.all([
+    const [p, l, td, wk, fb] = await Promise.all([
       fetchPendingReports(),
       fetchApprovedReports(),
       countReportsSince(startOfToday.toISOString()),
       countReportsSince(weekAgo.toISOString()),
+      fetchFeedback(),
     ]);
     setPending(p);
     setLive(l);
     setToday(td);
     setWeek(wk);
+    setFeedback(fb);
   }, []);
 
   useEffect(() => {
@@ -145,6 +149,13 @@ export default function AdminPage() {
     setBusyId(null);
   }
 
+  async function handleDismissFeedback(id: string) {
+    setBusyId(id);
+    const ok = await dismissFeedback(id);
+    if (ok) setFeedback((prev) => prev.filter((f) => f.id !== id));
+    setBusyId(null);
+  }
+
   async function handleSignOut() {
     await supabase?.auth.signOut();
     router.replace("/admin/login");
@@ -205,6 +216,14 @@ export default function AdminPage() {
           </TabButton>
           <TabButton active={tab === "stats"} onClick={() => setTab("stats")}>
             {t("tabStats")}
+          </TabButton>
+          <TabButton active={tab === "feedback"} onClick={() => setTab("feedback")}>
+            {t("tabFeedback")}
+            {feedback.filter((f) => !f.dismissed).length > 0 && (
+              <span className="ml-1.5 rounded-full bg-violet-500/15 px-1.5 text-[11px] font-bold text-violet-600 dark:text-violet-400">
+                {feedback.filter((f) => !f.dismissed).length}
+              </span>
+            )}
           </TabButton>
         </div>
       )}
@@ -273,6 +292,27 @@ export default function AdminPage() {
             week={week}
             liveReports={live}
           />
+        )}
+
+        {phase === "ready" && tab === "feedback" && (
+          feedback.length === 0 ? (
+            <p className="mt-10 text-center text-sm text-slate-500 dark:text-slate-400">
+              {t("feedbackQueueEmpty")}
+            </p>
+          ) : (
+            <div className="mx-auto grid max-w-4xl gap-3 sm:grid-cols-2">
+              {feedback.map((f) => (
+                <FeedbackCard
+                  key={f.id}
+                  item={f}
+                  busy={busyId === f.id}
+                  locale={locale}
+                  t={t}
+                  onDismiss={() => handleDismissFeedback(f.id)}
+                />
+              ))}
+            </div>
+          )
         )}
       </main>
     </div>
@@ -631,6 +671,56 @@ function StatCard({
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-neutral-900 dark:ring-white/10">
       <div className={`text-2xl font-extrabold ${accent}`}>{value}</div>
       <div className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{label}</div>
+    </div>
+  );
+}
+
+// Feedback card --------------------------------------------------------------
+
+function FeedbackCard({
+  item,
+  busy,
+  locale,
+  t,
+  onDismiss,
+}: {
+  item: FeedbackRow;
+  busy: boolean;
+  locale: "bn" | "en";
+  t: (key: MessageKey) => string;
+  onDismiss: () => void;
+}) {
+  return (
+    <div
+      className={`rounded-2xl bg-white p-4 shadow-sm ring-1 dark:bg-neutral-900 ${
+        item.dismissed
+          ? "opacity-50 ring-slate-100 dark:ring-white/5"
+          : "ring-violet-200 dark:ring-violet-500/20"
+      }`}
+    >
+      {!item.dismissed && (
+        <span className="mb-2 inline-block rounded-full bg-violet-500/10 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-violet-600 dark:text-violet-400">
+          {t("feedbackUnread")}
+        </span>
+      )}
+      <p className="text-sm text-slate-800 dark:text-slate-100">{item.message}</p>
+      {item.contact && (
+        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-medium">{t("feedbackContactLabel")}:</span> {item.contact}
+        </p>
+      )}
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-xs text-slate-400">{timeAgo(item.created_at, locale)}</span>
+        {!item.dismissed && (
+          <button
+            onClick={onDismiss}
+            disabled={busy}
+            className="rounded-full bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+          >
+            {t("feedbackDismiss")}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

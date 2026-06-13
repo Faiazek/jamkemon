@@ -8,8 +8,12 @@ create table if not exists public.feedback (
   message        text not null check (char_length(message) between 1 and 2000),
   contact        text check (char_length(contact) <= 200),
   reporter_token text,
-  user_agent     text
+  user_agent     text,
+  dismissed      boolean not null default false
 );
+
+-- Add dismissed column to existing tables (safe to run on an already-created table).
+alter table public.feedback add column if not exists dismissed boolean not null default false;
 
 alter table public.feedback enable row level security;
 
@@ -26,3 +30,11 @@ create policy "admins read feedback"
   on public.feedback for select
   to authenticated
   using (exists (select 1 from public.admins a where a.user_id = auth.uid()));
+
+-- Only admins may update (dismiss) feedback.
+drop policy if exists "admins update feedback" on public.feedback;
+create policy "admins update feedback"
+  on public.feedback for update
+  to authenticated
+  using (exists (select 1 from public.admins a where a.user_id = auth.uid()))
+  with check (true);
