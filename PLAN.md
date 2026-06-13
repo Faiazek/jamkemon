@@ -113,14 +113,23 @@ can't push a report straight onto the public map.
 
 ## 6. Anti-abuse & freshness mechanics
 
-- **Admin approval gate** (primary defense, day one).
-- **Rate limiting** per `reporter_token` + IP (e.g. max N reports / 10 min).
-- **Honeypot field** + minimum dwell time to block trivial bots.
-- **Auto-expiry** via `expires_at`; a scheduled job hard-deletes long-expired rows
-  to keep the table lean.
-- **Dedupe hint**: warn the submitter if an approved report of the same category
-  already exists within ~150 m in the last hour ("Someone may have reported this —
-  confirm it instead?").
+**Implemented:**
+- **Admin approval gate** (primary defense — nothing reaches the public map unapproved).
+- **Auto-expiry** via `expires_at` (per-category TTL, measured from `observed_at`).
+- **Dedupe / reconciliation**: near-duplicate same-category reports within ~150 m
+  collapse to the freshest sighting (`reconcile()` in `lib/reports.ts`).
+
+**Known risks — documented, deliberately deferred (see QA, 2026-06-13):**
+- **No rate limiting.** Anyone can submit reports or cast votes as fast as a script
+  allows. Abuse vectors: flooding the moderation queue + Telegram alerts with junk
+  reports; manipulating votes (3 "cleared" votes from fresh tokens knock any live
+  report off the map; "still" spam keeps stale ones alive). Acceptable at current
+  (low) scale. When it bites, the fix is a **server-side submit gateway enforcing a
+  per-IP limit** (a cheap per-`reporter_token` DB limit only stops casual abuse, since
+  a token is just a localStorage value an attacker can rotate). Not yet built.
+- **Honeypot field + minimum dwell time** to block trivial bots — planned, not built.
+- **Leaked-password protection** for admin auth is off (enable in Supabase dashboard →
+  Auth; can't be toggled via API).
 
 ---
 
