@@ -75,7 +75,7 @@ export default function Map() {
           <div className="jk-float pointer-events-auto flex max-w-full items-center gap-1.5 rounded-full bg-white/80 py-1.5 pl-1.5 pr-2 ring-1 ring-black/5 backdrop-blur-xl dark:bg-neutral-900/80 dark:ring-white/10">
             <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
               <span className="h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/25" />
-              {reports.length}
+              {filtered.length}
               <span className="hidden sm:inline">{t("live")}</span>
             </span>
             <div className="no-scrollbar flex min-w-0 items-center gap-1.5 overflow-x-auto">

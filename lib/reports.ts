@@ -128,7 +128,8 @@ export type Report = {
   severity: Severity;
   description: string | null;
   status: "pending" | "approved" | "rejected";
-  reporter_token: string | null;
+  // Withheld from public (anon) reads — only present on admin-side fetches.
+  reporter_token?: string | null;
   photo_url?: string | null;
   still_count?: number;
   cleared_count?: number;
@@ -181,10 +182,15 @@ export function setLocalVote(reportId: string, vote: FeedbackVote): void {
   }
 }
 
-// Select all columns rather than naming observed_at explicitly: that keeps the
-// read working whether or not the observed_at migration has been applied yet
-// (a named-but-missing column would otherwise fail the entire query).
+// Admin reads (authenticated, RLS-gated) may select everything.
 const REPORT_COLUMNS = "*";
+
+// The public map runs as the anon role, which is granted SELECT only on these
+// non-sensitive columns (reporter_token and admin_notes are withheld at the
+// database level — see supabase/qa_security_hardening.sql). Selecting "*" as anon
+// would be denied, so the public read names columns explicitly.
+const PUBLIC_REPORT_COLUMNS =
+  "id,created_at,expires_at,observed_at,lat,lng,category,severity,description,photo_url,area,status,confirm_count,still_count,cleared_count";
 
 // When the report was actually witnessed (falls back to submission time for
 // older rows that predate the observed_at column).
@@ -227,7 +233,7 @@ export async function fetchApprovedReports(): Promise<Report[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from("reports")
-    .select(REPORT_COLUMNS)
+    .select(PUBLIC_REPORT_COLUMNS)
     .eq("status", "approved")
     .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: false });
