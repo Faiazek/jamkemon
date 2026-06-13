@@ -34,7 +34,10 @@ alter function public.apply_feedback()      set search_path = '';
 alter function public.notify_new_report()   set search_path = '';
 
 -- 5) Trigger functions are not meant to be called as RPCs ---------------------
---    They still fire as triggers after EXECUTE is revoked.
-revoke execute on function public.set_report_defaults() from anon, authenticated;
-revoke execute on function public.apply_feedback()      from anon, authenticated;
-revoke execute on function public.notify_new_report()   from anon, authenticated;
+--    They still fire as triggers after EXECUTE is revoked. NOTE: functions carry
+--    an implicit PUBLIC EXECUTE grant that anon/authenticated inherit, so we must
+--    revoke from PUBLIC as well — revoking from anon/authenticated alone is a no-op.
+--    (get_shared_report is intentionally left public; it powers /r/<id>.)
+revoke execute on function public.set_report_defaults() from public, anon, authenticated;
+revoke execute on function public.apply_feedback()      from public, anon, authenticated;
+revoke execute on function public.notify_new_report()   from public, anon, authenticated;
