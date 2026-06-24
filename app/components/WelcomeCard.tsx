@@ -4,6 +4,7 @@
 // JamKemon is and how to contribute. Remembered in the browser after dismissal.
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useLanguage } from "../i18n/LanguageProvider";
 import Logo from "./Logo";
 
@@ -46,6 +47,13 @@ export default function WelcomeCard() {
         >
           {t("welcomeCta")}
         </button>
+        <Link
+          href="/guide"
+          onClick={dismiss}
+          className="mt-3 inline-block text-sm font-semibold text-rose-600 transition hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300"
+        >
+          {t("guide")} →
+        </Link>
       </div>
     </div>
   );

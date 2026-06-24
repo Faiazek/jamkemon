@@ -5,6 +5,7 @@ import ReportFlow from "./components/ReportFlow";
 import DirectionsPanel from "./components/DirectionsPanel";
 import WelcomeCard from "./components/WelcomeCard";
 import Feedback from "./components/Feedback";
+import ReportLauncher from "./components/ReportLauncher";
 
 export default function Home() {
   // Full-screen map with the UI floating on top (modern map-app layout).
@@ -17,6 +18,7 @@ export default function Home() {
       <ReportFlow />
       <DirectionsPanel />
       <WelcomeCard />
+      <ReportLauncher />
     </main>
   );
 }

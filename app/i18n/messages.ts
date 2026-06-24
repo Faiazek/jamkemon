@@ -12,6 +12,7 @@ export const messages = {
     comingSoon: "শীঘ্রই আসছে",
     mapLoading: "ম্যাপ লোড হচ্ছে…",
     footerNote: "কমিউনিটি-চালিত ট্রাফিক ম্যাপ • ঢাকা",
+    guide: "গাইড",
 
     // Report flow
     pickLocationPrompt: "অবস্থান চিহ্নিত করতে ম্যাপে ট্যাপ করুন",
@@ -188,6 +189,7 @@ export const messages = {
     comingSoon: "Coming soon",
     mapLoading: "Loading map…",
     footerNote: "Community-driven traffic map • Dhaka",
+    guide: "Guide",
 
     // Report flow
     pickLocationPrompt: "Tap the map to mark the location",
